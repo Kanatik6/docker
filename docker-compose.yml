@@ -1,0 +1,39 @@
+version: "3"
+
+
+services:
+
+  # postgresdb:
+  #   image: postgres:13.3
+  #   environment:
+  #     POSTGRES_DB: "celery_test_db"
+    
+  app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    # depends_on:
+    #   - postgresdb
+
+  redis:
+    container_name: redis_container
+    image: redis
+
+  celery: 
+    build:
+      context: .
+    container_name: celery-worker
+    restart: always
+    command: sh -c "celery -A selery_test worker -B -l INFO"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - app
+      # - postgresdb
+
+
+
